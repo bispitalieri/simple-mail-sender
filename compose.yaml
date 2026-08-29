@@ -1,0 +1,12 @@
+services:
+  simple-mail-sender:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: simple-mail-sender
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    # Passiamo il file di configurazione YAML al container
+    volumes:
+      - ./config.yaml:/config.yaml
