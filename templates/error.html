@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="{{.Lang}}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Errore Invio</title>
+  <title>{{T "error_title"}}</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="/static/js/tailwind.config.js"></script>
   <link rel="stylesheet" href="/static/css/common.css">
@@ -14,13 +14,25 @@
 <div class="absolute bottom-20 right-20 w-96 h-96 bg-orange-500/20 rounded-full blur-3xl animate-float" style="animation-delay: -3s;"></div>
 
 <div class="glass rounded-3xl p-10 w-full max-w-md text-center relative z-10 shadow-2xl">
+  <div class="flex justify-center mb-6">
+    <div class="flex gap-2">
+      {{range .AvailableLangs}}
+        {{if eq . $.Lang}}
+          <span class="px-3 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg">{{langName .}}</span>
+        {{else}}
+          <a href="/?lang={{.}}" class="px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-700/30 rounded-lg transition-all duration-300">{{langName .}}</a>
+        {{end}}
+      {{end}}
+    </div>
+  </div>
+
   <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-red-400 to-rose-600 mb-6 shadow-lg shadow-red-500/30 animate-shake">
     <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path>
     </svg>
   </div>
-  <h1 class="text-2xl font-bold text-white mb-3">Errore nell'invio</h1>
-  <p class="text-slate-400 mb-4">Si è verificato un problema durante l'invio dell'email.</p>
+  <h1 class="text-2xl font-bold text-white mb-3">{{T "error_heading"}}</h1>
+  <p class="text-slate-400 mb-4">{{T "error_message"}}</p>
   <div class="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-6">
     <p class="text-red-300 text-sm font-mono">{{.Error}}</p>
   </div>
@@ -28,7 +40,7 @@
     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
     </svg>
-    Torna al form
+    {{T "back_to_form"}}
   </a>
 </div>
 </body>

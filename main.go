@@ -7,12 +7,13 @@ import (
 	"net/smtp"
 	"os"
 
+	"simple-mail-server/internal/i18n"
+
 	"gopkg.in/yaml.v3"
 )
 
 var logger = log.New(os.Stdout, "", log.LstdFlags)
 
-// Config Struttura che rispecchia il file config.yaml
 type Config struct {
 	SMTP struct {
 		Host     string `yaml:"host"`
@@ -25,28 +26,41 @@ type Config struct {
 
 var cfg Config
 var tmpl *template.Template
+var i18nMgr *i18n.Manager
 
 func main() {
-	tmpl = template.Must(template.ParseGlob("templates/*.html"))
+	mgr, err := i18n.NewManager("locales", "it")
+	if err != nil {
+		logger.Printf("Errore nel caricamento dei file di lingua: %v", err)
+		os.Exit(1)
+	}
+	i18nMgr = mgr
+	logger.Printf("Lingue disponibili: %v", i18nMgr.AvailableLanguages())
 
-	// Leggi il file config.yaml
 	yamlFile, err := os.ReadFile("config.yaml")
 	if err != nil {
-		logger.Printf("Errore nella lettura del file di configurazione: %v\n", err)
+		logger.Println(i18nMgr.GetTranslator("it").TranslateF("config_load_error", err))
 		os.Exit(1)
 	}
 
-	// Decodifica il contenuto del file YAML nella struct cfg
 	err = yaml.Unmarshal(yamlFile, &cfg)
 	if err != nil {
-		logger.Printf("Errore nel parsing del file YAML: %v\n", err)
+		logger.Println(i18nMgr.GetTranslator("it").TranslateF("config_parse_error", err))
 		os.Exit(1)
 	}
 
-	logger.Printf("Configurazione caricata. SMTP Host: %s, Port: %s\n", cfg.SMTP.Host, cfg.SMTP.Port)
+	logger.Println(i18nMgr.GetTranslator("it").TranslateF("config_loaded", cfg.SMTP.Host, cfg.SMTP.Port))
+
+	funcMap := template.FuncMap{
+		"T":        func(key string) string { return key },
+		"TF":       func(key string, args ...interface{}) string { return key },
+		"langName": func(lang string) string { return lang },
+	}
+
+	tmpl = template.Must(template.New("").Funcs(funcMap).ParseGlob("templates/*.html"))
 
 	http.HandleFunc("/", handleForm)
-	logger.Println("Server avviato su http://localhost:8080")
+	logger.Println(i18nMgr.GetTranslator("it").Translate("server_started"))
 
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
@@ -58,6 +72,15 @@ func main() {
 }
 
 func handleForm(w http.ResponseWriter, r *http.Request) {
+	lang := i18nMgr.DetectLanguage(r)
+
+	t, err := tmpl.Clone()
+	if err != nil {
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
+	}
+	t.Funcs(i18nMgr.TemplateFuncs(lang))
+
 	if r.Method == http.MethodPost {
 		to := r.FormValue("to")
 		subject := r.FormValue("subject")
@@ -82,15 +105,25 @@ func handleForm(w http.ResponseWriter, r *http.Request) {
 		err := smtp.SendMail(addr, auth, from, []string{to}, msg)
 		if err != nil {
 			w.Header().Set("Content-Type", "text/html; charset=utf-8")
-			tmpl.ExecuteTemplate(w, "error.html", map[string]string{"Error": err.Error()})
+			t.ExecuteTemplate(w, "error.html", map[string]interface{}{
+				"Error":          err.Error(),
+				"Lang":           lang,
+				"AvailableLangs": i18nMgr.AvailableLanguages(),
+			})
 			return
 		}
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		tmpl.ExecuteTemplate(w, "success.html", nil)
+		t.ExecuteTemplate(w, "success.html", map[string]interface{}{
+			"Lang":           lang,
+			"AvailableLangs": i18nMgr.AvailableLanguages(),
+		})
 		return
 	}
 
-	err := tmpl.ExecuteTemplate(w, "form.html", nil)
+	err = t.ExecuteTemplate(w, "form.html", map[string]interface{}{
+		"Lang":           lang,
+		"AvailableLangs": i18nMgr.AvailableLanguages(),
+	})
 	if err != nil {
 		return
 	}
