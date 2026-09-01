@@ -1,3 +1,6 @@
 smtp:
   host: localhost
   port: "1025"
+  username: ""
+  password: ""
+  from: "sender@test.local"

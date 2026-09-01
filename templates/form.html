@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Email Sender</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/static/js/tailwind.config.js"></script>
+  <link rel="stylesheet" href="/static/css/common.css">
+  <link rel="stylesheet" href="/static/css/form.css">
+</head>
+<body class="bg-mesh min-h-screen flex items-center justify-center p-4">
+<div class="absolute top-20 left-20 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl animate-float"></div>
+<div class="absolute bottom-20 right-20 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-float" style="animation-delay: -3s;"></div>
+<div class="absolute top-1/2 left-1/2 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl animate-pulse-slow"></div>
+
+<div class="glass rounded-3xl p-8 md:p-10 w-full max-w-lg relative z-10 shadow-2xl">
+  <div class="text-center mb-8">
+    <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 mb-4 shadow-lg shadow-indigo-500/30">
+      <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+      </svg>
+    </div>
+    <h1 class="text-3xl font-bold text-white mb-2">Mini Email Sender</h1>
+    <p class="text-slate-400 text-sm">Invia email tramite il server SMTP configurato</p>
+  </div>
+
+  <form method="POST" class="space-y-5">
+    <div>
+      <label for="to" class="block text-sm font-medium text-slate-300 mb-2">Destinatario</label>
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
+          </svg>
+        </div>
+        <input type="email" id="to" name="to" placeholder="esempio@dominio.com" required
+               class="w-full pl-12 pr-4 py-3.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 focus:outline-none input-glow transition-all duration-300">
+      </div>
+    </div>
+
+    <div>
+      <label for="subject" class="block text-sm font-medium text-slate-300 mb-2">Oggetto</label>
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+          </svg>
+        </div>
+        <input type="text" id="subject" name="subject" placeholder="Inserisci l'oggetto" required
+               class="w-full pl-12 pr-4 py-3.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 focus:outline-none input-glow transition-all duration-300">
+      </div>
+    </div>
+
+    <div>
+      <label for="body" class="block text-sm font-medium text-slate-300 mb-2">Messaggio</label>
+      <div class="relative">
+        <div class="absolute top-4 left-0 pl-4 flex items-start pointer-events-none">
+          <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+          </svg>
+        </div>
+        <textarea id="body" name="body" rows="4" placeholder="Scrivi qui il tuo messaggio..." required
+                  class="w-full pl-12 pr-4 py-3.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 focus:outline-none input-glow transition-all duration-300 resize-none"></textarea>
+      </div>
+    </div>
+
+    <button type="submit"
+            class="w-full btn-gradient text-white font-semibold py-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 mt-6">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+      </svg>
+      Invia Email
+    </button>
+  </form>
+</div>
+</body>
+</html>

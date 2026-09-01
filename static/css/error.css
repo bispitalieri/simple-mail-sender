@@ -1,0 +1,17 @@
+.bg-mesh {
+  background-image:
+    radial-gradient(at 40% 20%, hsla(0, 100%, 50%, 0.2) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, hsla(355, 100%, 50%, 0.15) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, hsla(0, 100%, 40%, 0.15) 0px, transparent 50%),
+    radial-gradient(at 80% 50%, hsla(10, 100%, 50%, 0.15) 0px, transparent 50%);
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}

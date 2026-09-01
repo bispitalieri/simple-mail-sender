@@ -1,9 +1,9 @@
 FROM golang:1.22-alpine AS builder
 WORKDIR /app
 
-RUN go mod init mini-sender && go get gopkg.in/yaml.v3
+RUN go mod init simple-mail-server && go get gopkg.in/yaml.v3
 
-COPY main.go .
+COPY main.go config.yaml ./
 RUN CGO_ENABLED=0 GOOS=linux go build -o simple-mail-server main.go
 
 FROM alpine:latest
