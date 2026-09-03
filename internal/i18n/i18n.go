@@ -13,15 +13,15 @@ import (
 type Locale map[string]string
 
 type Manager struct {
-	locales       map[string]Locale
+	locales        map[string]Locale
 	availableLangs []string
-	fallbackLang  string
+	fallbackLang   string
 }
 
 func NewManager(localesDir string, fallbackLang string) (*Manager, error) {
 	m := &Manager{
-		locales:       make(map[string]Locale),
-		fallbackLang:  fallbackLang,
+		locales:      make(map[string]Locale),
+		fallbackLang: fallbackLang,
 	}
 
 	entries, err := os.ReadDir(localesDir)
@@ -118,8 +118,8 @@ func (m *Manager) DetectLanguage(r *http.Request) string {
 }
 
 type Translator struct {
-	manager   *Manager
-	language  string
+	manager  *Manager
+	language string
 }
 
 func (m *Manager) GetTranslator(lang string) *Translator {
@@ -161,9 +161,9 @@ func (t *Translator) TranslateF(key string, args ...interface{}) string {
 func (m *Manager) TemplateFuncs(lang string) map[string]interface{} {
 	tr := m.GetTranslator(lang)
 	return map[string]interface{}{
-		"T":          tr.Translate,
-		"TF":         tr.TranslateF,
-		"langName":   m.LangDisplayName,
+		"T":        tr.Translate,
+		"TF":       tr.TranslateF,
+		"langName": m.LangDisplayName,
 	}
 }
 

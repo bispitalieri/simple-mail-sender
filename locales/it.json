@@ -19,6 +19,7 @@
   "send_another": "Invia un'altra email",
   "config_load_error": "Errore nella lettura del file di configurazione: %v",
   "config_parse_error": "Errore nel parsing del file YAML: %v",
+  "config_validate_error": "Errore nella validazione della configurazione: %v",
   "server_started": "Server avviato su http://localhost:8080",
   "config_loaded": "Configurazione caricata. SMTP Host: %s, Port: %s"
 }

@@ -4,27 +4,21 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"net/smtp"
 	"os"
 
-	"simple-mail-server/internal/i18n"
+	"simple-mail-sender/internal/i18n"
+	"simple-mail-sender/internal/smtp"
 
 	"gopkg.in/yaml.v3"
 )
 
 var logger = log.New(os.Stdout, "", log.LstdFlags)
 
-type Config struct {
-	SMTP struct {
-		Host     string `yaml:"host"`
-		Port     string `yaml:"port"`
-		Username string `yaml:"username"`
-		Password string `yaml:"password"`
-		From     string `yaml:"from"`
-	} `yaml:"smtp"`
+type AppConfig struct {
+	SMTP smtp.Config `yaml:"smtp"`
 }
 
-var cfg Config
+var cfg AppConfig
 var tmpl *template.Template
 var i18nMgr *i18n.Manager
 
@@ -46,6 +40,11 @@ func main() {
 	err = yaml.Unmarshal(yamlFile, &cfg)
 	if err != nil {
 		logger.Println(i18nMgr.GetTranslator("it").TranslateF("config_parse_error", err))
+		os.Exit(1)
+	}
+
+	if err := cfg.SMTP.Validate(); err != nil {
+		logger.Println(i18nMgr.GetTranslator("it").TranslateF("config_validate_error", err))
 		os.Exit(1)
 	}
 
@@ -86,23 +85,18 @@ func handleForm(w http.ResponseWriter, r *http.Request) {
 		subject := r.FormValue("subject")
 		body := r.FormValue("body")
 
-		msg := []byte("To: " + to + "\r\n" +
-			"Subject: " + subject + "\r\n" +
-			"\r\n" +
-			body + "\r\n")
+		fromAddress := cfg.SMTP.Defaults.FromAddress
+		fromName := cfg.SMTP.Defaults.FromName
 
-		addr := cfg.SMTP.Host + ":" + cfg.SMTP.Port
-		from := cfg.SMTP.From
-		if from == "" {
-			from = "sender@test.local"
+		msg := smtp.NewMessage("", subject, body, to)
+		if fromName != "" {
+			msg.SetHeader("From", fromName+" <"+fromAddress+">")
+		} else {
+			msg.SetHeader("From", fromAddress)
 		}
+		data := msg.Bytes()
 
-		var auth smtp.Auth
-		if cfg.SMTP.Username != "" && cfg.SMTP.Password != "" {
-			auth = smtp.PlainAuth("", cfg.SMTP.Username, cfg.SMTP.Password, cfg.SMTP.Host)
-		}
-
-		err := smtp.SendMail(addr, auth, from, []string{to}, msg)
+		smtpClient, err := smtp.NewSMTPClient(&cfg.SMTP)
 		if err != nil {
 			w.Header().Set("Content-Type", "text/html; charset=utf-8")
 			t.ExecuteTemplate(w, "error.html", map[string]interface{}{
@@ -112,6 +106,31 @@ func handleForm(w http.ResponseWriter, r *http.Request) {
 			})
 			return
 		}
+		defer smtpClient.Close()
+
+		if cfg.SMTP.Auth.Enabled {
+			auth := smtp.NewAuthenticator(cfg.SMTP.Auth)
+			if err := smtpClient.Auth(auth); err != nil {
+				w.Header().Set("Content-Type", "text/html; charset=utf-8")
+				t.ExecuteTemplate(w, "error.html", map[string]interface{}{
+					"Error":          err.Error(),
+					"Lang":           lang,
+					"AvailableLangs": i18nMgr.AvailableLanguages(),
+				})
+				return
+			}
+		}
+
+		if err := smtpClient.Send(fromAddress, []string{to}, data); err != nil {
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			t.ExecuteTemplate(w, "error.html", map[string]interface{}{
+				"Error":          err.Error(),
+				"Lang":           lang,
+				"AvailableLangs": i18nMgr.AvailableLanguages(),
+			})
+			return
+		}
+
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		t.ExecuteTemplate(w, "success.html", map[string]interface{}{
 			"Lang":           lang,

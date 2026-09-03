@@ -1,4 +1,4 @@
-module simple-mail-server
+module simple-mail-sender
 
 go 1.27.0
 
