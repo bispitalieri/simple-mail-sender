@@ -1,6 +1,56 @@
+# ==============================================================================
+# COMPLETE SMTP SERVER CONFIGURATION
+# ==============================================================================
+
 smtp:
-  host: localhost
-  port: "1025"
-  username: ""
-  password: ""
-  from: "sender@test.local"
+  # ----------------------------------------------------------------------------
+  # Basic Connection Parameters
+  # ----------------------------------------------------------------------------
+  host: "://example.com"       # Server address (e.g. ://gmail.com, mail.example.com)
+  port: 587                    # Standard ports: 25 (plain/relay), 465 (SSL/TLS), 587 (STARTTLS)
+  local_name: "localhost"      # HELO/EHLO identifier (required by some strict servers)
+
+  # ----------------------------------------------------------------------------
+  # Authentication
+  # ----------------------------------------------------------------------------
+  auth:
+    enabled: true                # Set to false for anonymous corporate relays (without a password)
+    mechanism: "PLAIN"           # Options: PLAIN, LOGIN, CRAM-MD5, OAUTH2
+    username: "user@example.com" # Username or full email address
+    password: "your_password"    # Regular password or "App Password" (e.g. Gmail 2FA)
+    token: "oauth2_token_string" # Required only when mechanism is set to OAUTH2
+    identity: ""                 # SASL identity (optional, rarely used in enterprise environments)
+
+  # ----------------------------------------------------------------------------
+  # Security and Encryption (TLS)
+  # ----------------------------------------------------------------------------
+  tls:
+    # Encryption modes:
+    # - "none"     : Entirely unencrypted connection (e.g. port 25 or 8025 locally)
+    # - "starttls" : Starts unencrypted, then negotiates encryption (standard port 587)
+    # - "ssl_tls"  : Immediate encryption from the beginning of the connection (standard port 465)
+    mode: "starttls"
+
+    # Certificate Verification (Security)
+    skip_verify: false           # Set to true ONLY to ignore expired or self-signed certificates (e.g. in Dev)
+    server_name: "://example.com" # Forces verification of the certificate CN (if different from the main host)
+
+    # Private Certificates (Optional - For restricted corporate networks or mTLS)
+    ca_cert_path: "/path/to/ca.crt"       # Path to the private CA certificate
+    client_cert_path: "/path/to/cert.crt" # Path to the client certificate (if mTLS is required)
+    client_key_path: "/path/to/key.key"   # Path to the client private key (if mTLS is required)
+
+  # ----------------------------------------------------------------------------
+  # Timeout Management and Performance Optimization
+  # ----------------------------------------------------------------------------
+  timeouts:
+    connect: "10s"               # Maximum time allowed to establish the TCP connection (e.g. 5s, 10s)
+    send: "30s"                  # Maximum time allowed to send the message data
+
+  # ----------------------------------------------------------------------------
+  # Default Message Options
+  # ----------------------------------------------------------------------------
+  defaults:
+    from_address: "noreply@example.com" # Default sender if not specified in the code
+    from_name: "Your Go Application"     # Display name of the sender
+  ```
