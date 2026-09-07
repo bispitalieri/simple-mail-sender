@@ -36,9 +36,9 @@ smtp:
     server_name: "://example.com" # Forces verification of the certificate CN (if different from the main host)
 
     # Private Certificates (Optional - For restricted corporate networks or mTLS)
-    ca_cert_path: "/path/to/ca.crt"       # Path to the private CA certificate
-    client_cert_path: "/path/to/cert.crt" # Path to the client certificate (if mTLS is required)
-    client_key_path: "/path/to/key.key"   # Path to the client private key (if mTLS is required)
+    #ca_cert_path: "/path/to/ca.crt"       # Path to the private CA certificate
+    #client_cert_path: "/path/to/cert.crt" # Path to the client certificate (if mTLS is required)
+    #client_key_path: "/path/to/key.key"   # Path to the client private key (if mTLS is required)
 
   # ----------------------------------------------------------------------------
   # Timeout Management and Performance Optimization
@@ -53,4 +53,3 @@ smtp:
   defaults:
     from_address: "noreply@example.com" # Default sender if not specified in the code
     from_name: "Your Go Application"     # Display name of the sender
-  ```
