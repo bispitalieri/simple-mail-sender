@@ -1,11 +1,11 @@
 package i18n
 
 import (
+	"embed"
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"net/http"
-	"os"
-	"path/filepath"
 	"sort"
 	"strings"
 )
@@ -18,13 +18,18 @@ type Manager struct {
 	fallbackLang   string
 }
 
-func NewManager(localesDir string, fallbackLang string) (*Manager, error) {
+func NewManager(localesFS embed.FS, fallbackLang string) (*Manager, error) {
 	m := &Manager{
 		locales:      make(map[string]Locale),
 		fallbackLang: fallbackLang,
 	}
 
-	entries, err := os.ReadDir(localesDir)
+	sub, err := fs.Sub(localesFS, "locales")
+	if err != nil {
+		return nil, fmt.Errorf("cannot access locales directory: %w", err)
+	}
+
+	entries, err := fs.ReadDir(sub, ".")
 	if err != nil {
 		return nil, fmt.Errorf("cannot read locales directory: %w", err)
 	}
@@ -35,16 +40,15 @@ func NewManager(localesDir string, fallbackLang string) (*Manager, error) {
 		}
 
 		lang := strings.TrimSuffix(entry.Name(), ".json")
-		path := filepath.Join(localesDir, entry.Name())
 
-		data, err := os.ReadFile(path)
+		data, err := fs.ReadFile(sub, entry.Name())
 		if err != nil {
-			return nil, fmt.Errorf("cannot read locale file %s: %w", path, err)
+			return nil, fmt.Errorf("cannot read locale file %s: %w", entry.Name(), err)
 		}
 
 		var locale Locale
 		if err := json.Unmarshal(data, &locale); err != nil {
-			return nil, fmt.Errorf("cannot parse locale file %s: %w", path, err)
+			return nil, fmt.Errorf("cannot parse locale file %s: %w", entry.Name(), err)
 		}
 
 		m.locales[lang] = locale
@@ -54,7 +58,7 @@ func NewManager(localesDir string, fallbackLang string) (*Manager, error) {
 	sort.Strings(m.availableLangs)
 
 	if len(m.locales) == 0 {
-		return nil, fmt.Errorf("no locale files found in %s", localesDir)
+		return nil, fmt.Errorf("no locale files found")
 	}
 
 	if fallbackLang == "" {

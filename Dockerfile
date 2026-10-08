@@ -16,9 +16,6 @@ WORKDIR /app
 
 COPY --from=builder /app/simple-mail-server .
 COPY --from=builder /app/config.yaml .
-COPY --from=builder /app/templates ./templates
-COPY --from=builder /app/static ./static
-COPY --from=builder /app/locales ./locales
 
 USER nonroot
 

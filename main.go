@@ -23,7 +23,7 @@ var tmpl *template.Template
 var i18nMgr *i18n.Manager
 
 func main() {
-	mgr, err := i18n.NewManager("locales", "it")
+	mgr, err := i18n.NewManager(localesFS, "it")
 	if err != nil {
 		logger.Printf("Errore nel caricamento dei file di lingua: %v", err)
 		os.Exit(1)
@@ -56,7 +56,7 @@ func main() {
 		"langName": func(lang string) string { return lang },
 	}
 
-	tmpl = template.Must(template.New("").Funcs(funcMap).ParseGlob("templates/*.html"))
+	tmpl = template.Must(template.New("").Funcs(funcMap).ParseFS(templatesFS, "templates/*.html"))
 
 	http.HandleFunc("/", handleForm)
 	logger.Println(i18nMgr.GetTranslator("it").Translate("server_started"))

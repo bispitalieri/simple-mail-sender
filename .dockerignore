@@ -1,0 +1,14 @@
+.git
+.github
+
+docs
+*.md
+
+Dockerfile
+compose.yaml
+
+.env
+.env.*
+
+tmp
+dist
