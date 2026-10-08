@@ -1,4 +1,4 @@
-FROM golang:1.22-alpine AS builder
+FROM golang:1.27-alpine AS builder
 WORKDIR /app
 
 COPY go.mod go.sum ./
@@ -12,14 +12,16 @@ FROM alpine:3
 RUN addgroup -S nonroot \
     && adduser -S nonroot -G nonroot
 
-USER nonroot
+WORKDIR /app
 
-WORKDIR /root/
 COPY --from=builder /app/simple-mail-server .
 COPY --from=builder /app/config.yaml .
 COPY --from=builder /app/templates ./templates
 COPY --from=builder /app/static ./static
 COPY --from=builder /app/locales ./locales
 
+USER nonroot
+
 EXPOSE 8080
+
 CMD ["./simple-mail-server"]
